@@ -1,0 +1,34 @@
+export type TipoTransacao = "RECEITA" | "DESPESA"
+
+export interface Categoria {
+  id: number
+  nome: string
+  tipo: TipoTransacao
+}
+
+export interface Transacao {
+  id: number
+  descricao: string
+  valor: number
+  data: string
+  tipo: TipoTransacao
+  categoriaId: number
+  categoriaNome: string
+}
+
+export interface Resumo {
+  inicio: string
+  fim: string
+  totalReceitas: number
+  totalDespesas: number
+  saldo: number
+  saldoNegativo: boolean
+}
+
+export interface Page<T> {
+  content: T[]
+  totalElements: number
+  totalPages: number
+  number: number
+  size: number
+}
