@@ -14,7 +14,7 @@ import type { Categoria, Resumo, Transacao } from "@/lib/types"
 
 const MESES = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"]
 
-export default function Dashboard() {
+export default function Dashboard({ onLogout }: { onLogout: () => void }) {
   const now = new Date()
   const [mes, setMes] = useState(now.getMonth() + 1)
   const [ano, setAno] = useState(now.getFullYear())
@@ -58,7 +58,7 @@ export default function Dashboard() {
   }, [])
 
   return (
-    <Layout>
+    <Layout onLogout={onLogout}>
       <div className="max-w-7xl mx-auto space-y-6">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div>

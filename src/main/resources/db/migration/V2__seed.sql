@@ -1,6 +1,4 @@
-INSERT INTO usuario (id, nome, email, senha) VALUES
-    (1, 'Usuário Padrão', 'admin@financas.local', 'changeme');
-
+-- Categorias iniciais (visíveis para todos os usuários)
 INSERT INTO categoria (nome, tipo) VALUES
     ('Salário',     'RECEITA'),
     ('Freelance',   'RECEITA'),

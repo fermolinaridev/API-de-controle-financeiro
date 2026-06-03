@@ -1,7 +1,10 @@
-import { Wallet, LayoutDashboard } from "lucide-react"
+import { Wallet, LayoutDashboard, LogOut } from "lucide-react"
 import type { ReactNode } from "react"
+import { Button } from "@/components/ui/button"
+import { auth } from "@/lib/auth"
 
-export function Layout({ children }: { children: ReactNode }) {
+export function Layout({ children, onLogout }: { children: ReactNode; onLogout?: () => void }) {
+  const user = auth.getUser()
   return (
     <div className="flex min-h-screen bg-muted/30">
       <aside className="hidden md:flex w-60 flex-col border-r bg-card">
@@ -15,7 +18,19 @@ export function Layout({ children }: { children: ReactNode }) {
             Dashboard
           </a>
         </nav>
-        <div className="p-4 text-xs text-muted-foreground border-t">v0.1 · dev</div>
+        <div className="p-4 border-t space-y-2">
+          {user && (
+            <div className="text-xs">
+              <p className="font-medium truncate">{user.nome}</p>
+              <p className="text-muted-foreground truncate">{user.email}</p>
+            </div>
+          )}
+          {onLogout && (
+            <Button variant="outline" size="sm" className="w-full" onClick={onLogout}>
+              <LogOut className="h-4 w-4" /> Sair
+            </Button>
+          )}
+        </div>
       </aside>
       <main className="flex-1 p-6 md:p-8 overflow-auto">{children}</main>
     </div>

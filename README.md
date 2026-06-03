@@ -30,6 +30,7 @@ Aplicação full-stack para registro de receitas e despesas, com dashboard inter
 - Tratamento global de erros com mensagens amigáveis
 - Documentação interativa via Swagger UI
 - Dashboard web com cards de resumo, gráfico de pizza (despesas por categoria) e gráfico de linha (evolução receitas × despesas)
+- **Autenticação via JWT** com Spring Security — cada usuário só enxerga suas próprias transações
 
 ## Como rodar
 
@@ -77,26 +78,51 @@ Variáveis de ambiente (com defaults pro compose):
 | `DB_USERNAME` | `financas` |
 | `DB_PASSWORD` | `financas` |
 
+## Autenticação
+
+Todas as rotas sob `/api/**` (exceto `/api/auth/**`) exigem um **Bearer token JWT** no header:
+
+```
+Authorization: Bearer <token>
+```
+
+**Usuário padrão** (criado no primeiro boot pelo `DataSeeder`):
+
+| E-mail | Senha |
+|---|---|
+| `admin@financas.local` | `admin123` |
+
+Você também pode criar uma conta nova em `POST /api/auth/register` ou pela tela de login do frontend.
+
 ## Endpoints principais
 
-| Método | Rota | Descrição |
-|---|---|---|
-| `POST` | `/api/transacoes` | Cria uma nova transação |
-| `GET` | `/api/transacoes` | Lista paginada · query params: `mes`, `ano`, `categoriaId`, `page`, `size`, `sort` |
-| `PUT` | `/api/transacoes/{id}` | Atualiza uma transação |
-| `DELETE` | `/api/transacoes/{id}` | Remove uma transação |
-| `GET` | `/api/transacoes/resumo` | Resumo do mês atual (receitas, despesas, saldo) |
-| `GET` | `/api/categorias` | Lista todas as categorias |
-| `POST` | `/api/categorias` | Cria uma nova categoria |
+| Método | Rota | Auth | Descrição |
+|---|---|---|---|
+| `POST` | `/api/auth/register` | ❌ | Cria conta e retorna JWT |
+| `POST` | `/api/auth/login` | ❌ | Autentica e retorna JWT |
+| `POST` | `/api/transacoes` | ✅ | Cria uma nova transação |
+| `GET` | `/api/transacoes` | ✅ | Lista paginada · query params: `mes`, `ano`, `categoriaId`, `page`, `size`, `sort` |
+| `PUT` | `/api/transacoes/{id}` | ✅ | Atualiza uma transação |
+| `DELETE` | `/api/transacoes/{id}` | ✅ | Remove uma transação |
+| `GET` | `/api/transacoes/resumo` | ✅ | Resumo do mês atual (receitas, despesas, saldo) |
+| `GET` | `/api/categorias` | ✅ | Lista todas as categorias |
+| `POST` | `/api/categorias` | ✅ | Cria uma nova categoria |
 
 ### Exemplos `curl`
 
 ```bash
-# listar categorias seedadas
-curl http://localhost:8080/api/categorias
+# 1) login (pega o token)
+TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"admin@financas.local","senha":"admin123"}' \
+  | python3 -c "import sys,json; print(json.load(sys.stdin)['token'])")
 
-# criar uma receita
+# 2) listar categorias
+curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/categorias
+
+# 3) criar uma receita
 curl -X POST http://localhost:8080/api/transacoes \
+  -H "Authorization: Bearer $TOKEN" \
   -H 'Content-Type: application/json' \
   -d '{
     "descricao": "Salário Junho",
@@ -106,11 +132,11 @@ curl -X POST http://localhost:8080/api/transacoes \
     "categoriaId": 1
   }'
 
-# listar transações de junho/2026
-curl 'http://localhost:8080/api/transacoes?mes=6&ano=2026'
+# 4) listar transações de junho/2026
+curl -H "Authorization: Bearer $TOKEN" 'http://localhost:8080/api/transacoes?mes=6&ano=2026'
 
-# resumo do mês atual
-curl http://localhost:8080/api/transacoes/resumo
+# 5) resumo do mês atual
+curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/transacoes/resumo
 ```
 
 ## Estrutura do projeto
@@ -157,6 +183,6 @@ curl http://localhost:8080/api/transacoes/resumo
 - [ ] Dockerfile da aplicação Spring (multi-stage)
 - [ ] Dockerfile do frontend (Nginx servindo o `dist/`)
 - [ ] GitHub Actions (CI: build + testes)
-- [ ] Autenticação (hoje o `usuario_id` é fixo em 1 no `TransacaoService`)
 - [ ] Aviso de saldo negativo no `POST /api/transacoes` (hoje só aparece no `/resumo`)
 - [ ] Lançamento agendado (transações com data futura — hoje `@PastOrPresent` bloqueia)
+- [ ] Refresh token (hoje o JWT expira em 24h e o usuário precisa logar de novo)

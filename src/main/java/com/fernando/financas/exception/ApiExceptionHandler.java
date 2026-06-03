@@ -2,9 +2,12 @@ package com.fernando.financas.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
@@ -34,6 +37,21 @@ public class ApiExceptionHandler {
         Map<String, Object> body = baseBody(HttpStatus.BAD_REQUEST, "Erro de validação");
         body.put("campos", campos);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<Map<String, Object>> naoAutenticado(AuthenticationException ex) {
+        return build(HttpStatus.UNAUTHORIZED, "Não autenticado");
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> acessoNegado(AccessDeniedException ex) {
+        return build(HttpStatus.FORBIDDEN, "Acesso negado");
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<Map<String, Object>> statusEx(ResponseStatusException ex) {
+        return build(HttpStatus.valueOf(ex.getStatusCode().value()), ex.getReason());
     }
 
     @ExceptionHandler(Exception.class)
