@@ -1,21 +1,28 @@
-const TOKEN_KEY = "financas.token"
+const ACCESS_KEY = "financas.accessToken"
+const REFRESH_KEY = "financas.refreshToken"
 const USER_KEY = "financas.user"
 
 export interface StoredUser { nome: string; email: string }
 
 export const auth = {
-  getToken: () => localStorage.getItem(TOKEN_KEY),
+  getAccessToken: () => localStorage.getItem(ACCESS_KEY),
+  getRefreshToken: () => localStorage.getItem(REFRESH_KEY),
   getUser: (): StoredUser | null => {
     const raw = localStorage.getItem(USER_KEY)
     return raw ? JSON.parse(raw) : null
   },
-  save: (token: string, user: StoredUser) => {
-    localStorage.setItem(TOKEN_KEY, token)
+  save: (accessToken: string, refreshToken: string, user: StoredUser) => {
+    localStorage.setItem(ACCESS_KEY, accessToken)
+    localStorage.setItem(REFRESH_KEY, refreshToken)
     localStorage.setItem(USER_KEY, JSON.stringify(user))
   },
+  updateAccessToken: (accessToken: string) => {
+    localStorage.setItem(ACCESS_KEY, accessToken)
+  },
   clear: () => {
-    localStorage.removeItem(TOKEN_KEY)
+    localStorage.removeItem(ACCESS_KEY)
+    localStorage.removeItem(REFRESH_KEY)
     localStorage.removeItem(USER_KEY)
   },
-  isAuthenticated: () => !!localStorage.getItem(TOKEN_KEY),
+  isAuthenticated: () => !!localStorage.getItem(ACCESS_KEY),
 }

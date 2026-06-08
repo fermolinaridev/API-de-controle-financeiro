@@ -13,21 +13,35 @@ import java.util.Date;
 @Service
 public class JwtService {
 
+    public static final String TYPE_ACCESS = "access";
+    public static final String TYPE_REFRESH = "refresh";
+
     private final SecretKey key;
-    private final long expirationMs;
+    private final long accessMs;
+    private final long refreshMs;
 
     public JwtService(JwtProperties props) {
         this.key = Keys.hmacShaKeyFor(props.secret().getBytes(StandardCharsets.UTF_8));
-        this.expirationMs = props.expirationHours() * 3600_000L;
+        this.accessMs = props.accessTokenMinutes() * 60_000L;
+        this.refreshMs = props.refreshTokenDays() * 24 * 3600_000L;
     }
 
-    public String gerarToken(Long usuarioId, String email) {
+    public String gerarAccessToken(Long usuarioId, String email) {
+        return gerar(usuarioId, email, TYPE_ACCESS, accessMs);
+    }
+
+    public String gerarRefreshToken(Long usuarioId, String email) {
+        return gerar(usuarioId, email, TYPE_REFRESH, refreshMs);
+    }
+
+    private String gerar(Long usuarioId, String email, String tipo, long durationMs) {
         Date agora = new Date();
         return Jwts.builder()
                 .subject(String.valueOf(usuarioId))
                 .claim("email", email)
+                .claim("type", tipo)
                 .issuedAt(agora)
-                .expiration(new Date(agora.getTime() + expirationMs))
+                .expiration(new Date(agora.getTime() + durationMs))
                 .signWith(key)
                 .compact();
     }
@@ -36,7 +50,7 @@ public class JwtService {
         return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
     }
 
-    public long getExpirationSeconds() {
-        return expirationMs / 1000;
+    public long getAccessExpirationSeconds() {
+        return accessMs / 1000;
     }
 }

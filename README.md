@@ -33,7 +33,9 @@ Aplicação full-stack para registro de receitas e despesas, com dashboard inter
 - Tratamento global de erros com mensagens amigáveis
 - Documentação interativa via Swagger UI
 - Dashboard web com cards de resumo, gráfico de pizza (despesas por categoria) e gráfico de linha (evolução receitas × despesas)
-- **Autenticação via JWT** com Spring Security — cada usuário só enxerga suas próprias transações
+- **Autenticação via JWT** com access (1h) + refresh (7d) — cada usuário só enxerga suas próprias transações; refresh transparente no frontend via interceptor
+- **Importação de extrato em CSV** (`descricao,valor,data,tipo,categoria`) com criação automática de categorias e relatório de erros por linha
+- CRUD completo de categorias (criar, editar, excluir) com proteção contra deletar/mudar tipo de categoria em uso
 
 ## Como rodar
 
@@ -107,15 +109,19 @@ Você também pode criar uma conta nova em `POST /api/auth/register` ou pela tel
 
 | Método | Rota | Auth | Descrição |
 |---|---|---|---|
-| `POST` | `/api/auth/register` | ❌ | Cria conta e retorna JWT |
-| `POST` | `/api/auth/login` | ❌ | Autentica e retorna JWT |
+| `POST` | `/api/auth/register` | ❌ | Cria conta e retorna `accessToken` + `refreshToken` |
+| `POST` | `/api/auth/login` | ❌ | Autentica e retorna `accessToken` + `refreshToken` |
+| `POST` | `/api/auth/refresh` | ❌ | Troca um `refreshToken` válido por um novo `accessToken` |
 | `POST` | `/api/transacoes` | ✅ | Cria uma nova transação |
 | `GET` | `/api/transacoes` | ✅ | Lista paginada · query params: `mes`, `ano`, `categoriaId`, `page`, `size`, `sort` |
 | `PUT` | `/api/transacoes/{id}` | ✅ | Atualiza uma transação |
 | `DELETE` | `/api/transacoes/{id}` | ✅ | Remove uma transação |
 | `GET` | `/api/transacoes/resumo` | ✅ | Resumo do mês atual (receitas, despesas, saldo) |
+| `POST` | `/api/transacoes/importar` | ✅ | Importa transações de um CSV (multipart) |
 | `GET` | `/api/categorias` | ✅ | Lista todas as categorias |
 | `POST` | `/api/categorias` | ✅ | Cria uma nova categoria |
+| `PUT` | `/api/categorias/{id}` | ✅ | Atualiza nome/tipo (bloqueia mudança de tipo se em uso) |
+| `DELETE` | `/api/categorias/{id}` | ✅ | Remove (bloqueia se houver transação usando) |
 
 ### Exemplos `curl`
 
@@ -191,7 +197,7 @@ curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/transacoes/resu
 
 ## O que ainda falta
 
-- [ ] Refresh token (hoje o JWT expira em 24h e o usuário precisa logar de novo)
-- [ ] Edição/exclusão de categorias (hoje só cria e lista)
-- [ ] Importação CSV de extrato bancário
-- [ ] Code-splitting do bundle do frontend (Vite avisa que passou de 500KB)
+- [ ] Logout server-side com blacklist de refresh tokens (hoje o refresh é stateless e não revogável até expirar)
+- [ ] Filtros avançados na listagem (busca por descrição, intervalo livre de datas)
+- [ ] Exportação CSV/PDF do extrato
+- [ ] PWA / offline-first

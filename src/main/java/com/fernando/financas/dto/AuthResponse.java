@@ -1,3 +1,9 @@
 package com.fernando.financas.dto;
 
-public record AuthResponse(String token, long expiresIn, String nome, String email) {}
+public record AuthResponse(
+        String accessToken,
+        String refreshToken,
+        long expiresIn,
+        String nome,
+        String email
+) {}

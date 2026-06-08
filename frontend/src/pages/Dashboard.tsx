@@ -7,6 +7,7 @@ import { SummaryCards } from "@/components/SummaryCards"
 import { TransactionsTable } from "@/components/TransactionsTable"
 import { TransactionFormDialog } from "@/components/TransactionFormDialog"
 import { CategoriesDialog } from "@/components/CategoriesDialog"
+import { ImportCsvButton } from "@/components/ImportCsvButton"
 import { CategoryPieChart } from "@/components/CategoryPieChart"
 import { MonthlyLineChart } from "@/components/MonthlyLineChart"
 import { CategoriasApi, TransacoesApi } from "@/lib/api"
@@ -65,7 +66,8 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
             <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
             <p className="text-muted-foreground text-sm">Acompanhe suas receitas e despesas</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
+            <ImportCsvButton onImported={carregar} />
             <CategoriesDialog
               categorias={categorias}
               onChanged={carregar}

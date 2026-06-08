@@ -11,4 +11,17 @@ export default defineConfig({
     port: 5173,
     proxy: { '/api': 'http://localhost:8080' },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('recharts') || id.includes('d3-')) return 'charts'
+            if (id.includes('@radix-ui')) return 'radix'
+            if (id.includes('react-dom') || id.includes('/react/')) return 'react'
+          }
+        },
+      },
+    },
+  },
 })

@@ -22,7 +22,7 @@ export default function Login({ onAuthenticated }: { onAuthenticated: () => void
       const data = mode === "login"
         ? await AuthApi.login({ email, senha })
         : await AuthApi.register({ nome, email, senha })
-      auth.save(data.token, { nome: data.nome, email: data.email })
+      auth.save(data.accessToken, data.refreshToken, { nome: data.nome, email: data.email })
       onAuthenticated()
     } catch (e: any) {
       setErro(e.response?.data?.erro ?? "Falha na autenticação")

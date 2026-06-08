@@ -30,4 +30,15 @@ public class CategoriaController {
         CategoriaResponse criada = service.criar(req);
         return ResponseEntity.created(URI.create("/api/categorias/" + criada.id())).body(criada);
     }
+
+    @PutMapping("/{id}")
+    public CategoriaResponse atualizar(@PathVariable Long id, @Valid @RequestBody CategoriaRequest req) {
+        return service.atualizar(id, req);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        service.deletar(id);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -38,7 +38,7 @@ class TransacaoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json.writeValueAsString(req)))
                 .andReturn().getResponse().getContentAsString();
-        token = json.readTree(body).get("token").asText();
+        token = json.readTree(body).get("accessToken").asText();
     }
 
     @Test

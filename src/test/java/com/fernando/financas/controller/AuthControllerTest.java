@@ -29,7 +29,8 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json.writeValueAsString(req)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").isNotEmpty())
+                .andExpect(jsonPath("$.accessToken").isNotEmpty())
+                .andExpect(jsonPath("$.refreshToken").isNotEmpty())
                 .andExpect(jsonPath("$.email").value("maria@test.com"));
     }
 
@@ -49,6 +50,37 @@ class AuthControllerTest {
         mvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json.writeValueAsString(req)))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void refreshRetornaNovoAccessToken() throws Exception {
+        var reg = new RegisterRequest("Refresh", "refresh@test.com", "senha123");
+        String body = mvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json.writeValueAsString(reg)))
+                .andReturn().getResponse().getContentAsString();
+        String refreshToken = json.readTree(body).get("refreshToken").asText();
+
+        mvc.perform(post("/api/auth/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"refreshToken\":\"" + refreshToken + "\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").isNotEmpty());
+    }
+
+    @Test
+    void refreshComAccessTokenFalha() throws Exception {
+        var reg = new RegisterRequest("Wrong", "wrong@test.com", "senha123");
+        String body = mvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json.writeValueAsString(reg)))
+                .andReturn().getResponse().getContentAsString();
+        String accessToken = json.readTree(body).get("accessToken").asText();
+
+        mvc.perform(post("/api/auth/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"refreshToken\":\"" + accessToken + "\"}"))
                 .andExpect(status().isUnauthorized());
     }
 

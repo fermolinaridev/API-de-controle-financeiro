@@ -2,12 +2,16 @@ package com.fernando.financas.service;
 
 import com.fernando.financas.dto.AuthResponse;
 import com.fernando.financas.dto.LoginRequest;
+import com.fernando.financas.dto.RefreshRequest;
 import com.fernando.financas.dto.RegisterRequest;
 import com.fernando.financas.entity.Usuario;
 import com.fernando.financas.exception.RegraNegocioException;
 import com.fernando.financas.repository.UsuarioRepository;
 import com.fernando.financas.security.JwtService;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,7 +19,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
 
 @Service
 @RequiredArgsConstructor
@@ -31,12 +34,11 @@ public class AuthService {
         if (repository.existsByEmail(req.email())) {
             throw new RegraNegocioException("E-mail já cadastrado");
         }
-        Usuario u = Usuario.builder()
+        Usuario u = repository.save(Usuario.builder()
                 .nome(req.nome())
                 .email(req.email())
                 .senha(encoder.encode(req.senha()))
-                .build();
-        u = repository.save(u);
+                .build());
         return montarResposta(u);
     }
 
@@ -50,8 +52,24 @@ public class AuthService {
         return montarResposta(u);
     }
 
+    public AuthResponse refresh(RefreshRequest req) {
+        Claims claims;
+        try {
+            claims = jwtService.parse(req.refreshToken());
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token inválido");
+        }
+        if (!JwtService.TYPE_REFRESH.equals(claims.get("type", String.class))) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token não é refresh");
+        }
+        Usuario u = repository.findById(Long.valueOf(claims.getSubject()))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não encontrado"));
+        return montarResposta(u);
+    }
+
     private AuthResponse montarResposta(Usuario u) {
-        String token = jwtService.gerarToken(u.getId(), u.getEmail());
-        return new AuthResponse(token, jwtService.getExpirationSeconds(), u.getNome(), u.getEmail());
+        String access = jwtService.gerarAccessToken(u.getId(), u.getEmail());
+        String refresh = jwtService.gerarRefreshToken(u.getId(), u.getEmail());
+        return new AuthResponse(access, refresh, jwtService.getAccessExpirationSeconds(), u.getNome(), u.getEmail());
     }
 }

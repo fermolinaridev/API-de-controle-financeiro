@@ -30,10 +30,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = auth.substring(7);
             try {
                 Claims claims = jwtService.parse(token);
-                String email = claims.get("email", String.class);
-                UserDetails user = userDetailsService.loadUserByUsername(email);
-                var authToken = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                if (!JwtService.TYPE_ACCESS.equals(claims.get("type", String.class))) {
+                    SecurityContextHolder.clearContext();
+                } else {
+                    String email = claims.get("email", String.class);
+                    UserDetails user = userDetailsService.loadUserByUsername(email);
+                    var authToken = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             } catch (JwtException | IllegalArgumentException e) {
                 SecurityContextHolder.clearContext();
             }
