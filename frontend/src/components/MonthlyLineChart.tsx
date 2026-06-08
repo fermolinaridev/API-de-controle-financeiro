@@ -30,7 +30,15 @@ export function MonthlyLineChart({ transacoes }: { transacoes: Transacao[] }) {
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis dataKey="dia" stroke="hsl(var(--muted-foreground))" fontSize={12} />
               <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={v => brl(Number(v)).replace("R$", "")} />
-              <Tooltip formatter={(v) => brl(Number(v))} />
+              <Tooltip
+                formatter={(v) => brl(Number(v))}
+                contentStyle={{
+                  background: "hsl(var(--card))",
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: 8,
+                  color: "hsl(var(--foreground))",
+                }}
+              />
               <Legend />
               <Line type="monotone" dataKey="receitas" stroke="#22c55e" strokeWidth={2} />
               <Line type="monotone" dataKey="despesas" stroke="#ef4444" strokeWidth={2} />

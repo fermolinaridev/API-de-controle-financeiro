@@ -63,7 +63,7 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
       <div className="max-w-7xl mx-auto space-y-6">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Dashboard</h1>
             <p className="text-muted-foreground text-sm">Acompanhe suas receitas e despesas</p>
           </div>
           <div className="flex gap-2 flex-wrap">
@@ -86,7 +86,7 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
 
         <SummaryCards resumo={resumo} />
 
-        <div className="flex flex-wrap gap-3 items-end">
+        <div className="grid grid-cols-2 md:flex md:flex-wrap gap-3 md:items-end">
           <div className="space-y-1">
             <label className="text-xs text-muted-foreground">Mês</label>
             <Select value={mes} onChange={e => setMes(Number(e.target.value))}>
@@ -99,7 +99,7 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
               {anos.map(a => <option key={a} value={a}>{a}</option>)}
             </Select>
           </div>
-          <div className="space-y-1 flex-1 min-w-48">
+          <div className="space-y-1 col-span-2 md:flex-1 md:min-w-48">
             <label className="text-xs text-muted-foreground">Categoria</label>
             <Select value={categoriaId} onChange={e => setCategoriaId(e.target.value ? Number(e.target.value) : "")}>
               <option value="">Todas</option>

@@ -29,7 +29,15 @@ export function CategoryPieChart({ transacoes }: { transacoes: Transacao[] }) {
                   <Cell key={i} fill={COLORS[i % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip formatter={(v) => brl(Number(v))} />
+              <Tooltip
+                formatter={(v) => brl(Number(v))}
+                contentStyle={{
+                  background: "hsl(var(--card))",
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: 8,
+                  color: "hsl(var(--foreground))",
+                }}
+              />
               <Legend />
             </PieChart>
           </ResponsiveContainer>

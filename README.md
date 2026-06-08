@@ -36,6 +36,8 @@ Aplicação full-stack para registro de receitas e despesas, com dashboard inter
 - **Autenticação via JWT** com access (1h) + refresh (7d) — cada usuário só enxerga suas próprias transações; refresh transparente no frontend via interceptor
 - **Importação de extrato em CSV** (`descricao,valor,data,tipo,categoria`) com criação automática de categorias e relatório de erros por linha
 - CRUD completo de categorias (criar, editar, excluir) com proteção contra deletar/mudar tipo de categoria em uso
+- **Dark mode** com persistência em `localStorage` e respeito à preferência do sistema
+- **Layout mobile-friendly** com sidebar em drawer e tabela adaptativa
 
 ## Como rodar
 
@@ -200,4 +202,4 @@ curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/transacoes/resu
 - [ ] Logout server-side com blacklist de refresh tokens (hoje o refresh é stateless e não revogável até expirar)
 - [ ] Filtros avançados na listagem (busca por descrição, intervalo livre de datas)
 - [ ] Exportação CSV/PDF do extrato
-- [ ] PWA / offline-first
+- [ ] Menu hamburguer com mais páginas (hoje só Dashboard)
