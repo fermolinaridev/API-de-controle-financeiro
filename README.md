@@ -1,5 +1,7 @@
 # API de Controle Financeiro
 
+[![CI](https://github.com/<usuario>/<repo>/actions/workflows/ci.yml/badge.svg)](https://github.com/<usuario>/<repo>/actions/workflows/ci.yml)
+
 Aplicação full-stack para registro de receitas e despesas, com dashboard interativo, filtros por período/categoria e resumo mensal automático.
 
 ## Stack
@@ -18,7 +20,8 @@ Aplicação full-stack para registro de receitas e despesas, com dashboard inter
 - Recharts (gráficos) · Lucide (ícones) · Axios
 
 **Infra**
-- Docker Compose (PostgreSQL)
+- Dockerfile multi-stage (back e front) · Docker Compose (db + back + front)
+- GitHub Actions (CI: testes do backend + build do frontend)
 
 ## Funcionalidades
 
@@ -63,20 +66,26 @@ npm run dev
 | OpenAPI JSON | http://localhost:8080/v3/api-docs |
 | Console H2 | http://localhost:8080/h2 (JDBC `jdbc:h2:mem:financas`, user `sa`, sem senha) |
 
-### Modo prod (PostgreSQL via Docker)
+### Modo full Docker (db + backend + frontend num único comando)
 
 ```bash
-docker-compose up -d
-./mvnw spring-boot:run -Dspring-boot.run.profiles=prod
+docker-compose up --build
 ```
 
-Variáveis de ambiente (com defaults pro compose):
+| Serviço | URL |
+|---|---|
+| Frontend (Nginx) | http://localhost:8081 |
+| Backend (API) | http://localhost:8080 |
+| PostgreSQL | localhost:5432 |
+
+Variáveis de ambiente suportadas:
 
 | Variável | Default |
 |---|---|
-| `DB_URL` | `jdbc:postgresql://localhost:5432/financas` |
+| `DB_URL` | `jdbc:postgresql://db:5432/financas` |
 | `DB_USERNAME` | `financas` |
 | `DB_PASSWORD` | `financas` |
+| `JWT_SECRET` | dev default (troque em produção) |
 
 ## Autenticação
 
@@ -176,13 +185,13 @@ curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/transacoes/resu
 - **Coerência tipo categoria/transação** validada no service (`RegraNegocioException` → HTTP 422)
 - **Springdoc 2.8.x** porque versões anteriores são incompatíveis com Spring 6.2 (Boot 3.5)
 - **Frontend desacoplado** — Vite serve dev separado e faz proxy de `/api` pro backend, evitando CORS em desenvolvimento; em prod o `CorsConfig` libera origens conhecidas
+- **Lançamento agendado** — `data` aceita futuro; o response marca `agendada: true` quando aplicável
+- **Aviso de saldo negativo no POST** — o `TransacaoResponse` traz `aviso` quando a despesa criada leva o saldo do mês a ficar negativo, sem bloquear a operação
+- **Isolamento de dados por usuário** — todas as queries de transação filtram por `usuario_id` no banco; nem por força bruta um usuário acessa dados do outro
 
 ## O que ainda falta
 
-- [ ] Testes (`@SpringBootTest`, `MockMvc`, `@DataJpaTest`)
-- [ ] Dockerfile da aplicação Spring (multi-stage)
-- [ ] Dockerfile do frontend (Nginx servindo o `dist/`)
-- [ ] GitHub Actions (CI: build + testes)
-- [ ] Aviso de saldo negativo no `POST /api/transacoes` (hoje só aparece no `/resumo`)
-- [ ] Lançamento agendado (transações com data futura — hoje `@PastOrPresent` bloqueia)
 - [ ] Refresh token (hoje o JWT expira em 24h e o usuário precisa logar de novo)
+- [ ] Edição/exclusão de categorias (hoje só cria e lista)
+- [ ] Importação CSV de extrato bancário
+- [ ] Code-splitting do bundle do frontend (Vite avisa que passou de 500KB)

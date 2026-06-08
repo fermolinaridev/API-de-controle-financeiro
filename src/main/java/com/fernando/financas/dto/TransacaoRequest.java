@@ -9,7 +9,7 @@ import java.time.LocalDate;
 public record TransacaoRequest(
         @NotBlank @Size(max = 160) String descricao,
         @NotNull @Positive BigDecimal valor,
-        @NotNull @PastOrPresent LocalDate data,
+        @NotNull LocalDate data,
         @NotNull TipoTransacao tipo,
         @NotNull Long categoriaId
 ) {}

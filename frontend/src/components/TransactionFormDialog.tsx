@@ -53,8 +53,10 @@ export function TransactionFormDialog({ categorias, onSaved, trigger, editing, o
     }
     setSaving(true)
     try {
-      if (editing) await TransacoesApi.update(editing.id, body)
-      else await TransacoesApi.create(body)
+      const saved = editing
+        ? await TransacoesApi.update(editing.id, body)
+        : await TransacoesApi.create(body)
+      if (saved.aviso) alert(saved.aviso)
       onSaved()
       onOpenChange?.(false)
     } catch (e: any) {
@@ -95,7 +97,8 @@ export function TransactionFormDialog({ categorias, onSaved, trigger, editing, o
             </div>
             <div className="space-y-2">
               <Label>Data</Label>
-              <Input type="date" value={data} max={new Date().toISOString().slice(0,10)} onChange={e => setData(e.target.value)} required />
+              <Input type="date" value={data} onChange={e => setData(e.target.value)} required />
+              <p className="text-xs text-muted-foreground">Datas futuras criam lançamentos agendados</p>
             </div>
           </div>
           <div className="space-y-2">

@@ -36,7 +36,14 @@ export function TransactionsTable({ transacoes, onEdit, onDelete }: Props) {
               )}
               {transacoes.map(t => (
                 <tr key={t.id} className="border-b last:border-b-0 hover:bg-muted/40">
-                  <td className="px-6 py-3 font-medium">{t.descricao}</td>
+                  <td className="px-6 py-3 font-medium">
+                    {t.descricao}
+                    {t.agendada && (
+                      <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600">
+                        Agendada
+                      </span>
+                    )}
+                  </td>
                   <td className="px-6 py-3">
                     <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-full ${
                       t.tipo === "RECEITA" ? "bg-emerald-500/10 text-emerald-600" : "bg-rose-500/10 text-rose-600"

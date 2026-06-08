@@ -44,7 +44,24 @@ public class TransacaoService {
                 .categoria(categoria)
                 .usuario(usuario)
                 .build();
-        return TransacaoResponse.from(repository.save(t));
+        t = repository.save(t);
+
+        String aviso = avisoSaldoNegativo(usuario.getId(), req);
+        return TransacaoResponse.from(t, aviso);
+    }
+
+    /** Retorna mensagem se a despesa fizer o saldo do mês ficar negativo, senão null. */
+    private String avisoSaldoNegativo(Long usuarioId, TransacaoRequest req) {
+        if (req.tipo() != TipoTransacao.DESPESA) return null;
+        YearMonth ym = YearMonth.from(req.data());
+        LocalDate inicio = ym.atDay(1);
+        LocalDate fim = ym.atEndOfMonth();
+        BigDecimal receitas = repository.somarPorTipoNoPeriodo(usuarioId, TipoTransacao.RECEITA, inicio, fim);
+        BigDecimal despesas = repository.somarPorTipoNoPeriodo(usuarioId, TipoTransacao.DESPESA, inicio, fim);
+        BigDecimal saldo = receitas.subtract(despesas);
+        return saldo.compareTo(BigDecimal.ZERO) < 0
+                ? "Atenção: esta despesa deixou seu saldo do mês negativo (" + saldo + ")"
+                : null;
     }
 
     @Transactional(readOnly = true)

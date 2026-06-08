@@ -13,9 +13,15 @@ public record TransacaoResponse(
         LocalDate data,
         TipoTransacao tipo,
         Long categoriaId,
-        String categoriaNome
+        String categoriaNome,
+        boolean agendada,
+        String aviso
 ) {
     public static TransacaoResponse from(Transacao t) {
+        return from(t, null);
+    }
+
+    public static TransacaoResponse from(Transacao t, String aviso) {
         return new TransacaoResponse(
                 t.getId(),
                 t.getDescricao(),
@@ -23,7 +29,9 @@ public record TransacaoResponse(
                 t.getData(),
                 t.getTipo(),
                 t.getCategoria().getId(),
-                t.getCategoria().getNome()
+                t.getCategoria().getNome(),
+                t.getData().isAfter(LocalDate.now()),
+                aviso
         );
     }
 }

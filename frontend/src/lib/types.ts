@@ -14,6 +14,8 @@ export interface Transacao {
   tipo: TipoTransacao
   categoriaId: number
   categoriaNome: string
+  agendada?: boolean
+  aviso?: string | null
 }
 
 export interface Resumo {
