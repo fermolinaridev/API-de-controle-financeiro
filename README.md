@@ -34,6 +34,7 @@ Aplicação full-stack para registro de receitas e despesas, com dashboard inter
 - Documentação interativa via Swagger UI
 - Dashboard web com cards de resumo, gráfico de pizza (despesas por categoria) e gráfico de linha (evolução receitas × despesas)
 - **Autenticação via JWT** com access (1h) + refresh (7d) — cada usuário só enxerga suas próprias transações; refresh transparente no frontend via interceptor
+- **Logout server-side revogável:** refresh token carrega um `jti` (UUID); o `/logout` o adiciona à blacklist e qualquer tentativa subsequente de `/refresh` retorna 401. Job hourly limpa entradas expiradas
 - **Importação de extrato em CSV** (`descricao,valor,data,tipo,categoria`) com criação automática de categorias e relatório de erros por linha
 - CRUD completo de categorias (criar, editar, excluir) com proteção contra deletar/mudar tipo de categoria em uso
 - **Dark mode** com persistência em `localStorage` e respeito à preferência do sistema
@@ -114,6 +115,7 @@ Você também pode criar uma conta nova em `POST /api/auth/register` ou pela tel
 | `POST` | `/api/auth/register` | ❌ | Cria conta e retorna `accessToken` + `refreshToken` |
 | `POST` | `/api/auth/login` | ❌ | Autentica e retorna `accessToken` + `refreshToken` |
 | `POST` | `/api/auth/refresh` | ❌ | Troca um `refreshToken` válido por um novo `accessToken` |
+| `POST` | `/api/auth/logout` | ❌ | Revoga o `refreshToken` (adiciona o `jti` à blacklist) |
 | `POST` | `/api/transacoes` | ✅ | Cria uma nova transação |
 | `GET` | `/api/transacoes` | ✅ | Lista paginada · params: `mes`/`ano`, `dataInicio`/`dataFim` (sobrepõe mes/ano), `categoriaId`, `tipo`, `q` (busca por descrição), `page`, `size`, `sort` |
 | `PUT` | `/api/transacoes/{id}` | ✅ | Atualiza uma transação |
@@ -199,6 +201,5 @@ curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/transacoes/resu
 
 ## O que ainda falta
 
-- [ ] Logout server-side com blacklist de refresh tokens (hoje o refresh é stateless e não revogável até expirar)
 - [ ] Exportação CSV/PDF do extrato
 - [ ] Menu hamburguer com mais páginas (hoje só Dashboard)

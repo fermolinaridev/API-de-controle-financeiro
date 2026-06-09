@@ -54,6 +54,8 @@ export const AuthApi = {
     api.post<AuthPayload>("/auth/login", body).then(r => r.data),
   register: (body: { nome: string; email: string; senha: string }) =>
     api.post<AuthPayload>("/auth/register", body).then(r => r.data),
+  logout: (refreshToken: string) =>
+    rawApi.post("/auth/logout", { refreshToken }).then(() => undefined).catch(() => undefined),
 }
 
 export interface TransacaoListParams {

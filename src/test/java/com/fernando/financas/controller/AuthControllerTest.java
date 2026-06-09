@@ -85,6 +85,43 @@ class AuthControllerTest {
     }
 
     @Test
+    void logoutInvalidaRefreshToken() throws Exception {
+        var reg = new RegisterRequest("Logout", "logout@test.com", "senha123");
+        String body = mvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json.writeValueAsString(reg)))
+                .andReturn().getResponse().getContentAsString();
+        String refreshToken = json.readTree(body).get("refreshToken").asText();
+        String refreshJson = "{\"refreshToken\":\"" + refreshToken + "\"}";
+
+        // refresh funciona antes do logout
+        mvc.perform(post("/api/auth/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(refreshJson))
+                .andExpect(status().isOk());
+
+        // logout
+        mvc.perform(post("/api/auth/logout")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(refreshJson))
+                .andExpect(status().isNoContent());
+
+        // refresh agora falha
+        mvc.perform(post("/api/auth/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(refreshJson))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void logoutComTokenInvalidoNaoQuebra() throws Exception {
+        mvc.perform(post("/api/auth/logout")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"refreshToken\":\"abc.def.ghi\"}"))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
     void rotaProtegidaSemTokenRetorna401Ou403() throws Exception {
         mvc.perform(get("/api/categorias"))
                 .andExpect(result -> {

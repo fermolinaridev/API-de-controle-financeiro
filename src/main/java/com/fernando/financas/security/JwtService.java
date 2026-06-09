@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.UUID;
 
 @Service
 public class JwtService {
@@ -27,23 +28,23 @@ public class JwtService {
     }
 
     public String gerarAccessToken(Long usuarioId, String email) {
-        return gerar(usuarioId, email, TYPE_ACCESS, accessMs);
+        return gerar(usuarioId, email, TYPE_ACCESS, accessMs, null);
     }
 
     public String gerarRefreshToken(Long usuarioId, String email) {
-        return gerar(usuarioId, email, TYPE_REFRESH, refreshMs);
+        return gerar(usuarioId, email, TYPE_REFRESH, refreshMs, UUID.randomUUID().toString());
     }
 
-    private String gerar(Long usuarioId, String email, String tipo, long durationMs) {
+    private String gerar(Long usuarioId, String email, String tipo, long durationMs, String jti) {
         Date agora = new Date();
-        return Jwts.builder()
+        var builder = Jwts.builder()
                 .subject(String.valueOf(usuarioId))
                 .claim("email", email)
                 .claim("type", tipo)
                 .issuedAt(agora)
-                .expiration(new Date(agora.getTime() + durationMs))
-                .signWith(key)
-                .compact();
+                .expiration(new Date(agora.getTime() + durationMs));
+        if (jti != null) builder.id(jti);
+        return builder.signWith(key).compact();
     }
 
     public Claims parse(String token) {
