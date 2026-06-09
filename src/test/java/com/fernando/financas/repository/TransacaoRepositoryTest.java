@@ -53,7 +53,7 @@ class TransacaoRepositoryTest {
 
     @Test
     void buscarSemFiltrosRetornaApenasDoUsuario() {
-        Page<Transacao> page = transacaoRepository.buscar(userA.getId(), null, null, null, PageRequest.of(0, 10));
+        Page<Transacao> page = transacaoRepository.buscar(userA.getId(), null, null, null, null, null, PageRequest.of(0, 10));
         assertThat(page.getContent()).hasSize(3);
         assertThat(page.getContent()).allMatch(t -> t.getUsuario().getId().equals(userA.getId()));
     }
@@ -61,15 +61,36 @@ class TransacaoRepositoryTest {
     @Test
     void buscarFiltraPorPeriodo() {
         Page<Transacao> page = transacaoRepository.buscar(
-                userA.getId(), LocalDate.of(2026, 6, 1), LocalDate.of(2026, 6, 30), null, PageRequest.of(0, 10));
+                userA.getId(), LocalDate.of(2026, 6, 1), LocalDate.of(2026, 6, 30), null, null, null, PageRequest.of(0, 10));
         assertThat(page.getContent()).hasSize(2);
     }
 
     @Test
     void buscarFiltraPorCategoria() {
         Page<Transacao> page = transacaoRepository.buscar(
-                userA.getId(), null, null, catDespesa.getId(), PageRequest.of(0, 10));
+                userA.getId(), null, null, catDespesa.getId(), null, null, PageRequest.of(0, 10));
         assertThat(page.getContent()).hasSize(2);
+    }
+
+    @Test
+    void buscarFiltraPorTipo() {
+        Page<Transacao> page = transacaoRepository.buscar(
+                userA.getId(), null, null, null, TipoTransacao.DESPESA, null, PageRequest.of(0, 10));
+        assertThat(page.getContent()).hasSize(2);
+        assertThat(page.getContent()).allMatch(t -> t.getTipo() == TipoTransacao.DESPESA);
+    }
+
+    @Test
+    void buscarFiltraPorTextoCaseInsensitive() {
+        transacaoRepository.save(Transacao.builder()
+                .usuario(userA).categoria(catDespesa).tipo(TipoTransacao.DESPESA)
+                .descricao("Mercado da esquina").valor(new BigDecimal("100"))
+                .data(LocalDate.of(2026, 6, 20)).build());
+
+        Page<Transacao> page = transacaoRepository.buscar(
+                userA.getId(), null, null, null, null, "MERCADO", PageRequest.of(0, 10));
+        assertThat(page.getContent()).hasSize(1);
+        assertThat(page.getContent().get(0).getDescricao()).isEqualTo("Mercado da esquina");
     }
 
     @Test

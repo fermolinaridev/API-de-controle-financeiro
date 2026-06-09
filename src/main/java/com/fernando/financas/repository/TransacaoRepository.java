@@ -20,12 +20,16 @@ public interface TransacaoRepository extends JpaRepository<Transacao, Long> {
           AND (:inicio IS NULL OR t.data >= :inicio)
           AND (:fim    IS NULL OR t.data <= :fim)
           AND (:categoriaId IS NULL OR t.categoria.id = :categoriaId)
+          AND (:tipo IS NULL OR t.tipo = :tipo)
+          AND (:q IS NULL OR LOWER(t.descricao) LIKE LOWER(CONCAT('%', :q, '%')))
         """)
     Page<Transacao> buscar(
             @Param("usuarioId") Long usuarioId,
             @Param("inicio") LocalDate inicio,
             @Param("fim") LocalDate fim,
             @Param("categoriaId") Long categoriaId,
+            @Param("tipo") TipoTransacao tipo,
+            @Param("q") String q,
             Pageable pageable);
 
     @Query("""

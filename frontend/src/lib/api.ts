@@ -56,8 +56,21 @@ export const AuthApi = {
     api.post<AuthPayload>("/auth/register", body).then(r => r.data),
 }
 
+export interface TransacaoListParams {
+  mes?: number
+  ano?: number
+  dataInicio?: string
+  dataFim?: string
+  categoriaId?: number
+  tipo?: TipoTransacao
+  q?: string
+  page?: number
+  size?: number
+  sort?: string
+}
+
 export const TransacoesApi = {
-  list: (params: { mes?: number; ano?: number; categoriaId?: number; page?: number; size?: number; sort?: string }) =>
+  list: (params: TransacaoListParams) =>
     api.get<Page<Transacao>>("/transacoes", { params }).then(r => r.data),
   create: (body: TransacaoInput) => api.post<Transacao>("/transacoes", body).then(r => r.data),
   update: (id: number, body: TransacaoInput) => api.put<Transacao>(`/transacoes/${id}`, body).then(r => r.data),

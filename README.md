@@ -26,7 +26,7 @@ Aplicação full-stack para registro de receitas e despesas, com dashboard inter
 ## Funcionalidades
 
 - CRUD de transações (receitas/despesas) com paginação
-- Filtros por mês, ano e categoria
+- **Filtros avançados:** busca por descrição (LIKE case-insensitive), filtro por tipo (RECEITA/DESPESA), intervalo livre de datas (sobrepõe mes/ano), categoria — todos combináveis
 - Resumo do mês atual: total de receitas, total de despesas, saldo e flag de saldo negativo
 - CRUD de categorias com tipo (RECEITA/DESPESA)
 - Validação de coerência: o tipo da transação precisa bater com o tipo da categoria
@@ -115,7 +115,7 @@ Você também pode criar uma conta nova em `POST /api/auth/register` ou pela tel
 | `POST` | `/api/auth/login` | ❌ | Autentica e retorna `accessToken` + `refreshToken` |
 | `POST` | `/api/auth/refresh` | ❌ | Troca um `refreshToken` válido por um novo `accessToken` |
 | `POST` | `/api/transacoes` | ✅ | Cria uma nova transação |
-| `GET` | `/api/transacoes` | ✅ | Lista paginada · query params: `mes`, `ano`, `categoriaId`, `page`, `size`, `sort` |
+| `GET` | `/api/transacoes` | ✅ | Lista paginada · params: `mes`/`ano`, `dataInicio`/`dataFim` (sobrepõe mes/ano), `categoriaId`, `tipo`, `q` (busca por descrição), `page`, `size`, `sort` |
 | `PUT` | `/api/transacoes/{id}` | ✅ | Atualiza uma transação |
 | `DELETE` | `/api/transacoes/{id}` | ✅ | Remove uma transação |
 | `GET` | `/api/transacoes/resumo` | ✅ | Resumo do mês atual (receitas, despesas, saldo) |
@@ -200,6 +200,5 @@ curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/transacoes/resu
 ## O que ainda falta
 
 - [ ] Logout server-side com blacklist de refresh tokens (hoje o refresh é stateless e não revogável até expirar)
-- [ ] Filtros avançados na listagem (busca por descrição, intervalo livre de datas)
 - [ ] Exportação CSV/PDF do extrato
 - [ ] Menu hamburguer com mais páginas (hoje só Dashboard)

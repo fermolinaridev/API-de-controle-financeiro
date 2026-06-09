@@ -1,6 +1,7 @@
 package com.fernando.financas.service;
 
 import com.fernando.financas.dto.ResumoResponse;
+import com.fernando.financas.dto.TransacaoFiltro;
 import com.fernando.financas.dto.TransacaoRequest;
 import com.fernando.financas.dto.TransacaoResponse;
 import com.fernando.financas.entity.Categoria;
@@ -65,17 +66,26 @@ public class TransacaoService {
     }
 
     @Transactional(readOnly = true)
-    public Page<TransacaoResponse> listar(Integer mes, Integer ano, Long categoriaId, Pageable pageable) {
-        LocalDate inicio = null, fim = null;
-        if (mes != null && ano != null) {
-            YearMonth ym = YearMonth.of(ano, mes);
-            inicio = ym.atDay(1);
-            fim = ym.atEndOfMonth();
-        } else if (ano != null) {
-            inicio = LocalDate.of(ano, 1, 1);
-            fim = LocalDate.of(ano, 12, 31);
+    public Page<TransacaoResponse> listar(TransacaoFiltro f, Pageable pageable) {
+        LocalDate inicio = f.dataInicio();
+        LocalDate fim = f.dataFim();
+
+        // intervalo livre tem prioridade; senão tenta mes/ano
+        if (inicio == null && fim == null) {
+            if (f.mes() != null && f.ano() != null) {
+                YearMonth ym = YearMonth.of(f.ano(), f.mes());
+                inicio = ym.atDay(1);
+                fim = ym.atEndOfMonth();
+            } else if (f.ano() != null) {
+                inicio = LocalDate.of(f.ano(), 1, 1);
+                fim = LocalDate.of(f.ano(), 12, 31);
+            }
         }
-        return repository.buscar(usuarioAtual().getId(), inicio, fim, categoriaId, pageable).map(TransacaoResponse::from);
+
+        String q = (f.q() != null && !f.q().isBlank()) ? f.q().trim() : null;
+
+        return repository.buscar(usuarioAtual().getId(), inicio, fim, f.categoriaId(), f.tipo(), q, pageable)
+                .map(TransacaoResponse::from);
     }
 
     @Transactional
