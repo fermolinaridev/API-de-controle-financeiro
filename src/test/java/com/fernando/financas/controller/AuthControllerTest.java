@@ -94,23 +94,47 @@ class AuthControllerTest {
         String refreshToken = json.readTree(body).get("refreshToken").asText();
         String refreshJson = "{\"refreshToken\":\"" + refreshToken + "\"}";
 
-        // refresh funciona antes do logout
-        mvc.perform(post("/api/auth/refresh")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(refreshJson))
-                .andExpect(status().isOk());
-
-        // logout
         mvc.perform(post("/api/auth/logout")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(refreshJson))
                 .andExpect(status().isNoContent());
 
-        // refresh agora falha
         mvc.perform(post("/api/auth/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(refreshJson))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void refreshTokenSoPodeSerUsadoUmaVez() throws Exception {
+        var reg = new RegisterRequest("Rotacao", "rotacao@test.com", "senha123");
+        String body = mvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json.writeValueAsString(reg)))
+                .andReturn().getResponse().getContentAsString();
+        String refreshToken = json.readTree(body).get("refreshToken").asText();
+        String refreshJson = "{\"refreshToken\":\"" + refreshToken + "\"}";
+
+        // primeiro uso: OK e devolve um refresh diferente
+        String segundo = mvc.perform(post("/api/auth/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(refreshJson))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        String novoRefresh = json.readTree(segundo).get("refreshToken").asText();
+        if (novoRefresh.equals(refreshToken)) throw new AssertionError("refresh não rotacionou");
+
+        // reuso do token antigo: revogado
+        mvc.perform(post("/api/auth/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(refreshJson))
+                .andExpect(status().isUnauthorized());
+
+        // o novo continua válido
+        mvc.perform(post("/api/auth/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"refreshToken\":\"" + novoRefresh + "\"}"))
+                .andExpect(status().isOk());
     }
 
     @Test

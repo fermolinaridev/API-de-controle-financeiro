@@ -22,4 +22,13 @@ public class Categoria {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private TipoTransacao tipo;
+
+    /** null = categoria do sistema (visível a todos, imutável) */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id")
+    private Usuario usuario;
+
+    public boolean isDoSistema() {
+        return usuario == null;
+    }
 }

@@ -35,7 +35,9 @@ Aplicação full-stack para registro de receitas e despesas, com dashboard inter
 - Dashboard web com cards de resumo, gráfico de pizza (despesas por categoria) e gráfico de linha (evolução receitas × despesas)
 - **Autenticação via JWT** com access (1h) + refresh (7d) — cada usuário só enxerga suas próprias transações; refresh transparente no frontend via interceptor
 - **Logout server-side revogável:** refresh token carrega um `jti` (UUID); o `/logout` o adiciona à blacklist e qualquer tentativa subsequente de `/refresh` retorna 401. Job hourly limpa entradas expiradas
-- **Importação de extrato em CSV** (`descricao,valor,data,tipo,categoria`) com criação automática de categorias e relatório de erros por linha
+- **Rotação de refresh token:** cada `/refresh` revoga o token usado e emite um novo — refresh é de uso único; um token vazado e já usado não serve para nada
+- **Categorias do sistema vs. pessoais:** as categorias seedadas são globais e imutáveis (`doSistema: true`); categorias criadas pelo usuário são privadas — outro usuário não as vê nem altera
+- **Importação de extrato em CSV** (`descricao,valor,data,tipo,categoria`, com suporte a campos entre aspas) — criação automática de categorias, relatório de erros por linha, limite de 5000 linhas e upload de até 1MB
 - CRUD completo de categorias (criar, editar, excluir) com proteção contra deletar/mudar tipo de categoria em uso
 - **Dark mode** com persistência em `localStorage` e respeito à preferência do sistema
 - **Layout mobile-friendly** com sidebar em drawer e tabela adaptativa
@@ -90,7 +92,7 @@ Variáveis de ambiente suportadas:
 | `DB_URL` | `jdbc:postgresql://db:5432/financas` |
 | `DB_USERNAME` | `financas` |
 | `DB_PASSWORD` | `financas` |
-| `JWT_SECRET` | dev default (troque em produção) |
+| `JWT_SECRET` | obrigatório no perfil `prod` (o boot falha com o secret default); o compose traz um valor de demo local |
 
 ## Autenticação
 
@@ -100,7 +102,7 @@ Todas as rotas sob `/api/**` (exceto `/api/auth/**`) exigem um **Bearer token JW
 Authorization: Bearer <token>
 ```
 
-**Usuário padrão** (criado no primeiro boot pelo `DataSeeder`):
+**Usuário padrão** (criado no primeiro boot pelo `DataSeeder`, **apenas no perfil `dev`** — em prod não há credenciais default):
 
 | E-mail | Senha |
 |---|---|

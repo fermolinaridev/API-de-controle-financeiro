@@ -50,7 +50,7 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/h2/**").permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())
-                .headers(h -> h.frameOptions(f -> f.disable())) // console H2
+                .headers(h -> h.frameOptions(f -> f.sameOrigin())) // console H2 funciona; clickjacking externo bloqueado
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

@@ -25,7 +25,8 @@ services:
       DB_URL: jdbc:postgresql://db:5432/financas
       DB_USERNAME: financas
       DB_PASSWORD: financas
-      JWT_SECRET: ${JWT_SECRET:-troque-essa-chave-em-producao-com-pelo-menos-32-bytes-aleatorios}
+      # secret de demonstração para rodar localmente; em produção real defina JWT_SECRET no ambiente
+      JWT_SECRET: ${JWT_SECRET:-demo-local-financas-2026-nao-usar-em-producao-9f8e7d6c5b4a}
     ports:
       - "8080:8080"
 

@@ -4,6 +4,7 @@ export interface Categoria {
   id: number
   nome: string
   tipo: TipoTransacao
+  doSistema?: boolean
 }
 
 export interface Transacao {

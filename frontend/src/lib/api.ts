@@ -19,7 +19,8 @@ async function tryRefresh(): Promise<string | null> {
   if (!rt) return null
   try {
     const r = await rawApi.post<AuthPayload>("/auth/refresh", { refreshToken: rt })
-    auth.updateAccessToken(r.data.accessToken)
+    // rotação no backend: o refresh usado foi revogado, persiste o novo par
+    auth.updateTokens(r.data.accessToken, r.data.refreshToken)
     return r.data.accessToken
   } catch {
     return null

@@ -58,6 +58,7 @@ public class AuthService {
         return montarResposta(u);
     }
 
+    @Transactional
     public AuthResponse refresh(RefreshRequest req) {
         Claims claims = parseRefreshOuFalhar(req.refreshToken());
         if (claims.getId() != null && blacklist.existsById(claims.getId())) {
@@ -65,6 +66,10 @@ public class AuthService {
         }
         Usuario u = repository.findById(Long.valueOf(claims.getSubject()))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não encontrado"));
+
+        // rotação: o refresh usado é revogado; só o novo emitido continua válido
+        revogar(claims);
+
         return montarResposta(u);
     }
 
@@ -77,6 +82,10 @@ public class AuthService {
             // logout idempotente: token inválido/expirado também devolve OK
             return;
         }
+        revogar(claims);
+    }
+
+    private void revogar(Claims claims) {
         String jti = claims.getId();
         if (jti == null || blacklist.existsById(jti)) return;
 

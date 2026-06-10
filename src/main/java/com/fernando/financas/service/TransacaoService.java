@@ -11,11 +11,10 @@ import com.fernando.financas.entity.Usuario;
 import com.fernando.financas.exception.RecursoNaoEncontradoException;
 import com.fernando.financas.exception.RegraNegocioException;
 import com.fernando.financas.repository.TransacaoRepository;
-import com.fernando.financas.security.UsuarioPrincipal;
+import com.fernando.financas.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -128,9 +127,7 @@ public class TransacaoService {
     }
 
     private Usuario usuarioAtual() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof UsuarioPrincipal up) return up.usuario();
-        throw new RecursoNaoEncontradoException("Usuário autenticado não encontrado");
+        return SecurityUtils.usuarioAtual();
     }
 
     private void validarCoerenciaTipo(TipoTransacao tipoTransacao, Categoria categoria) {

@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
+@lombok.extern.slf4j.Slf4j
 public class ApiExceptionHandler {
 
     @ExceptionHandler(RecursoNaoEncontradoException.class)
@@ -56,7 +57,8 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> generico(Exception ex) {
-        return build(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno: " + ex.getMessage());
+        log.error("Erro não tratado", ex);
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno no servidor");
     }
 
     private ResponseEntity<Map<String, Object>> build(HttpStatus status, String msg) {

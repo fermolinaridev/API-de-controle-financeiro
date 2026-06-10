@@ -4,6 +4,7 @@ import com.fernando.financas.config.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -21,7 +22,14 @@ public class JwtService {
     private final long accessMs;
     private final long refreshMs;
 
-    public JwtService(JwtProperties props) {
+    private static final String DEFAULT_SECRET_PREFIX = "troque-essa-chave";
+
+    public JwtService(JwtProperties props, Environment env) {
+        boolean prod = java.util.Arrays.asList(env.getActiveProfiles()).contains("prod");
+        if (prod && props.secret().startsWith(DEFAULT_SECRET_PREFIX)) {
+            throw new IllegalStateException(
+                    "JWT_SECRET não configurado: o secret default não pode ser usado no perfil prod");
+        }
         this.key = Keys.hmacShaKeyFor(props.secret().getBytes(StandardCharsets.UTF_8));
         this.accessMs = props.accessTokenMinutes() * 60_000L;
         this.refreshMs = props.refreshTokenDays() * 24 * 3600_000L;

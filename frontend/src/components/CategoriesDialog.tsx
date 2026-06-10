@@ -100,8 +100,14 @@ export function CategoriesDialog({ categorias, onChanged, trigger }: Props) {
                     ) : (
                       <>
                         <span className="flex-1">{c.nome}</span>
-                        <Button size="icon" variant="ghost" onClick={() => startEdit(c)}><Pencil className="h-4 w-4" /></Button>
-                        <Button size="icon" variant="ghost" onClick={() => remove(c)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                        {c.doSistema ? (
+                          <span className="text-xs text-muted-foreground px-2">padrão</span>
+                        ) : (
+                          <>
+                            <Button size="icon" variant="ghost" onClick={() => startEdit(c)}><Pencil className="h-4 w-4" /></Button>
+                            <Button size="icon" variant="ghost" onClick={() => remove(c)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                          </>
+                        )}
                       </>
                     )}
                   </div>
