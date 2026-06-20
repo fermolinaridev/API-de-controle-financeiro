@@ -1,9 +1,15 @@
-import { Wallet, LayoutDashboard, LogOut, Menu, X } from "lucide-react"
+import { Wallet, LayoutDashboard, TrendingUp, LogOut, Menu, X } from "lucide-react"
 import { useEffect, useState, type ReactNode } from "react"
+import { NavLink } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { auth } from "@/lib/auth"
 import { cn } from "@/lib/utils"
+
+const navItems = [
+  { to: "/", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/investimentos", label: "Investimentos", icon: TrendingUp },
+]
 
 export function Layout({ children, onLogout }: { children: ReactNode; onLogout?: () => void }) {
   const user = auth.getUser()
@@ -26,10 +32,23 @@ export function Layout({ children, onLogout }: { children: ReactNode; onLogout?:
         </Button>
       </div>
       <nav className="flex-1 p-3 space-y-1">
-        <a className="flex items-center gap-3 px-3 py-2 rounded-md bg-primary/10 text-primary font-medium">
-          <LayoutDashboard className="h-4 w-4" />
-          Dashboard
-        </a>
+        {navItems.map(({ to, label, icon: Icon }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={to === "/"}
+            onClick={() => setOpen(false)}
+            className={({ isActive }) => cn(
+              "flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors",
+              isActive
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            )}
+          >
+            <Icon className="h-4 w-4" />
+            {label}
+          </NavLink>
+        ))}
       </nav>
       <div className="p-4 border-t space-y-2">
         {user && (

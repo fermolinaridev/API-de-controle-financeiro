@@ -28,6 +28,11 @@ public class ApiExceptionHandler {
         return build(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
     }
 
+    @ExceptionHandler(ServicoIndisponivelException.class)
+    public ResponseEntity<Map<String, Object>> servicoIndisponivel(ServicoIndisponivelException ex) {
+        return build(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> validacao(MethodArgumentNotValidException ex) {
         Map<String, String> campos = ex.getBindingResult().getFieldErrors().stream()

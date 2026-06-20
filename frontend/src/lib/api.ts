@@ -1,5 +1,8 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios"
-import type { Categoria, Page, Resumo, TipoTransacao, Transacao } from "./types"
+import type {
+  AtivoBusca, Carteira, Categoria, Cotacao, Historico, Investimento,
+  Page, Resumo, TipoAtivo, TipoTransacao, Transacao,
+} from "./types"
 import { auth } from "./auth"
 
 const api = axios.create({ baseURL: "/api" })
@@ -103,4 +106,28 @@ export interface TransacaoInput {
   data: string
   tipo: TipoTransacao
   categoriaId: number
+}
+
+export interface InvestimentoInput {
+  ticker: string
+  classe: TipoAtivo
+  quantidade: number
+  precoMedio: number
+}
+
+export const InvestimentosApi = {
+  carteira: () => api.get<Carteira>("/investimentos").then(r => r.data),
+  create: (body: InvestimentoInput) => api.post<Investimento>("/investimentos", body).then(r => r.data),
+  update: (id: number, body: InvestimentoInput) =>
+    api.put<Investimento>(`/investimentos/${id}`, body).then(r => r.data),
+  remove: (id: number) => api.delete(`/investimentos/${id}`).then(r => r.data),
+}
+
+export const MercadoApi = {
+  dolar: () => api.get<Cotacao>("/mercado/dolar").then(r => r.data),
+  bitcoin: () => api.get<Cotacao>("/mercado/bitcoin").then(r => r.data),
+  buscar: (q: string) => api.get<AtivoBusca[]>("/mercado/buscar", { params: { q } }).then(r => r.data),
+  cotacao: (ticker: string) => api.get<Cotacao>(`/mercado/cotacao/${ticker}`).then(r => r.data),
+  historico: (ticker: string, range = "3mo", interval = "1d") =>
+    api.get<Historico>(`/mercado/historico/${ticker}`, { params: { range, interval } }).then(r => r.data),
 }

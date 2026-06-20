@@ -27,6 +27,8 @@ services:
       DB_PASSWORD: financas
       # secret de demonstração para rodar localmente; em produção real defina JWT_SECRET no ambiente
       JWT_SECRET: ${JWT_SECRET:-demo-local-financas-2026-nao-usar-em-producao-9f8e7d6c5b4a}
+      # opcional: token da brapi.dev só eleva o rate-limit; as cotações funcionam sem ele
+      BRAPI_TOKEN: ${BRAPI_TOKEN:-}
     ports:
       - "8080:8080"
 

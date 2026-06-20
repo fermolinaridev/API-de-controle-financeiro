@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import { Plus, Tags } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Layout } from "@/components/Layout"
 import { SummaryCards } from "@/components/SummaryCards"
 import { TransactionsTable } from "@/components/TransactionsTable"
 import { TransactionFormDialog } from "@/components/TransactionFormDialog"
@@ -14,7 +13,7 @@ import { CategoriasApi, TransacoesApi, type TransacaoListParams } from "@/lib/ap
 import type { Categoria, Resumo, Transacao } from "@/lib/types"
 import { useDebounce } from "@/lib/useDebounce"
 
-export default function Dashboard({ onLogout }: { onLogout: () => void }) {
+export default function Dashboard() {
   const now = new Date()
 
   const [filters, setFilters] = useState<FiltersState>({
@@ -104,7 +103,6 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
   }, [])
 
   return (
-    <Layout onLogout={onLogout}>
       <div className="max-w-7xl mx-auto space-y-6">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -152,6 +150,5 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
 
         {loading && <p className="text-sm text-muted-foreground text-center">Carregando…</p>}
       </div>
-    </Layout>
   )
 }

@@ -41,6 +41,7 @@ Aplicação full-stack para registro de receitas e despesas, com dashboard inter
 - CRUD completo de categorias (criar, editar, excluir) com proteção contra deletar/mudar tipo de categoria em uso
 - **Dark mode** com persistência em `localStorage` e respeito à preferência do sistema
 - **Layout mobile-friendly** com sidebar em drawer e tabela adaptativa
+- **Investimentos:** aba dedicada com cotações ao vivo (dólar e Bitcoin), carteira pessoal de ativos com cálculo de rendimento (R$ e %) usando preços em tempo real, e busca de qualquer ação da B3 para ver o gráfico de preço. **Funciona sem cadastro:** dólar/BTC via [AwesomeAPI](https://docs.awesomeapi.com.br/), busca e preço de ações via [brapi.dev](https://brapi.dev) (`/quote/list`, sem token) e gráfico histórico via Yahoo Finance
 
 ## Como rodar
 
@@ -93,6 +94,8 @@ Variáveis de ambiente suportadas:
 | `DB_USERNAME` | `financas` |
 | `DB_PASSWORD` | `financas` |
 | `JWT_SECRET` | obrigatório no perfil `prod` (o boot falha com o secret default); o compose traz um valor de demo local |
+| `BRAPI_TOKEN` | **opcional.** As cotações funcionam sem cadastro; o token só eleva o rate-limit da brapi. Deixe vazio que tudo funciona |
+| `BRAPI_BASE_URL` | `https://brapi.dev/api` (default) |
 
 ## Autenticação
 
@@ -128,6 +131,15 @@ Você também pode criar uma conta nova em `POST /api/auth/register` ou pela tel
 | `POST` | `/api/categorias` | ✅ | Cria uma nova categoria |
 | `PUT` | `/api/categorias/{id}` | ✅ | Atualiza nome/tipo (bloqueia mudança de tipo se em uso) |
 | `DELETE` | `/api/categorias/{id}` | ✅ | Remove (bloqueia se houver transação usando) |
+| `GET` | `/api/investimentos` | ✅ | Carteira do usuário com preço atual, valor e rendimento + resumo total |
+| `POST` | `/api/investimentos` | ✅ | Adiciona um ativo à carteira (ticker, classe, quantidade, preço médio) |
+| `PUT` | `/api/investimentos/{id}` | ✅ | Atualiza um ativo da carteira |
+| `DELETE` | `/api/investimentos/{id}` | ✅ | Remove um ativo da carteira |
+| `GET` | `/api/mercado/dolar` | ✅ | Cotação atual do dólar (USD-BRL) via AwesomeAPI |
+| `GET` | `/api/mercado/bitcoin` | ✅ | Cotação atual do Bitcoin (BTC-BRL) via AwesomeAPI |
+| `GET` | `/api/mercado/buscar?q=` | ✅ | Busca ativos da B3 por termo (para o autocomplete/gráfico) |
+| `GET` | `/api/mercado/cotacao/{ticker}` | ✅ | Cotação atual de um ativo da B3 |
+| `GET` | `/api/mercado/historico/{ticker}?range=3mo&interval=1d` | ✅ | Série histórica de preço para o gráfico (Yahoo Finance) |
 
 ### Exemplos `curl`
 
@@ -204,4 +216,6 @@ curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/transacoes/resu
 ## O que ainda falta
 
 - [ ] Exportação CSV/PDF do extrato
-- [ ] Menu hamburguer com mais páginas (hoje só Dashboard)
+- [x] Menu com mais páginas (Dashboard + Investimentos)
+- [ ] Ações dos EUA nativas em dólar (hoje só B3 — brapi não cobre ações americanas)
+- [ ] Histórico de aportes por ativo (hoje a carteira guarda posição consolidada: quantidade + preço médio)
