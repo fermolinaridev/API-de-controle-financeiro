@@ -41,7 +41,7 @@ Aplicação full-stack para registro de receitas e despesas, com dashboard inter
 - CRUD completo de categorias (criar, editar, excluir) com proteção contra deletar/mudar tipo de categoria em uso
 - **Dark mode** com persistência em `localStorage` e respeito à preferência do sistema
 - **Layout mobile-friendly** com sidebar em drawer e tabela adaptativa
-- **Investimentos:** aba dedicada com cotações ao vivo (dólar e Bitcoin), carteira pessoal de ativos com cálculo de rendimento (R$ e %) usando preços em tempo real, e busca de qualquer ação da B3 para ver o gráfico de preço. **Funciona sem cadastro:** dólar/BTC via [AwesomeAPI](https://docs.awesomeapi.com.br/), busca e preço de ações via [brapi.dev](https://brapi.dev) (`/quote/list`, sem token) e gráfico histórico via Yahoo Finance
+- **Investimentos:** aba dedicada com cotações ao vivo (dólar e Bitcoin), carteira pessoal de ativos com cálculo de rendimento (R$ e %) usando preços em tempo real, e busca de qualquer ação da B3 para ver o gráfico de preço. **Funciona sem cadastro:** dólar/BTC via [AwesomeAPI](https://docs.awesomeapi.com.br/), busca e preço de ações via [brapi.dev](https://brapi.dev) (`/quote/list`, sem token) e gráfico histórico via mfinance.com.br (~3 meses)
 
 ## Como rodar
 
@@ -139,7 +139,7 @@ Você também pode criar uma conta nova em `POST /api/auth/register` ou pela tel
 | `GET` | `/api/mercado/bitcoin` | ✅ | Cotação atual do Bitcoin (BTC-BRL) via AwesomeAPI |
 | `GET` | `/api/mercado/buscar?q=` | ✅ | Busca ativos da B3 por termo (para o autocomplete/gráfico) |
 | `GET` | `/api/mercado/cotacao/{ticker}` | ✅ | Cotação atual de um ativo da B3 |
-| `GET` | `/api/mercado/historico/{ticker}?range=3mo&interval=1d` | ✅ | Série histórica de preço para o gráfico (Yahoo Finance) |
+| `GET` | `/api/mercado/historico/{ticker}?range=3mo&interval=1d` | ✅ | Série histórica de preço para o gráfico (mfinance, ~3 meses) |
 
 ### Exemplos `curl`
 

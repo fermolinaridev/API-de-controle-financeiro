@@ -3,7 +3,7 @@ package com.fernando.financas.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fernando.financas.client.AwesomeApiClient;
 import com.fernando.financas.client.BrapiClient;
-import com.fernando.financas.client.YahooFinanceClient;
+import com.fernando.financas.client.MfinanceClient;
 import com.fernando.financas.dto.CotacaoResponse;
 import com.fernando.financas.dto.InvestimentoRequest;
 import com.fernando.financas.dto.RegisterRequest;
@@ -33,7 +33,7 @@ class InvestimentoControllerTest {
     @Autowired ObjectMapper json;
     @MockitoBean BrapiClient brapi;
     @MockitoBean AwesomeApiClient awesome;
-    @MockitoBean YahooFinanceClient yahoo;
+    @MockitoBean MfinanceClient mfinance;
 
     String token;
 
